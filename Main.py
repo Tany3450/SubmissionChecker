@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import gradleParser as gr
 from androGuard.apk import APK
-import re
 from ConfigParser import SafeConfigParser
 
 parser = SafeConfigParser()
@@ -61,10 +60,9 @@ def dependencyChecker(dependencies):
     errorVersion = False
     for dependency in dependencies:
         if (len(dependency) == 1):
-            if (re.search('[+]+', dependency[0]) != None):
+            if ("+" in dependency[0]):
                 errorVersion = True
                 # print "B8 - " + dependency
-            test=dependency[0][:37]
             if ("com.google.android.gms:play-services:" == dependency[0][:37]):
                 errorGoogleAPI = True
     if (errorGoogleAPI == False):
@@ -112,7 +110,6 @@ def proguardChecker(release_build):
 
 def debuggableChecker(release_build):
     try:
-        test = release_build["debuggable"][0]
         if (release_build["debuggable"][0][0] != 'true'):
             print "B9 - Success. Release build type in gradle build file doesn't have debuggable set to true."
         else:
@@ -125,6 +122,10 @@ def signingConfigs(signingConfigs_release):
     try:
         if (signingConfigs_release["storeFile"][0] != None):
             print "SIGN2 - Success. Release keystore is included in source control."
+            if not ("/build/" in signingConfigs_release["storeFile"][0][0]):
+                print "SIGN3 - Success. The release keystore is NOT included in build classpath."
+            else:
+                print "SIGN3 - Fail. The release keystore is included in build classpath."
     except:
         print "SIGN2 - Fail. Release keystore is not included in source control."
     try:
@@ -195,23 +196,35 @@ def hardwareFeatures(features, featuresIsRequired):
         print "PERM3 - Fail. android:required is not set to false for hardware features."
 
 
+def resConfigs(res_configs):
+    error = False
+    for res_config in res_configs:
+        if not (res_config in parser.get('B1', 'resConfigs').split()):
+            error = True
+    if error != True:
+        print "B1 - Success. res configs minimized by only including necessary resources."
+    else:
+        print "B1 - Fail. res configs are not minimized by only including necessary resources."
+
+
 def main():
     parser.read('config.ini')
     myapk = APK("/users/ozefet/AndroidStudioProjects/UdacityMovies/app/build/outputs/apk/app-debug.apk")
     manifestXML = myapk.get_android_manifest_xml()
     gradleResult = gr.GradleParser().parse(False)
     apk_SIZE(myapk.file_size)
+    resConfigs(gradleResult["android"]["defaultConfig"][0]["resConfigs"][0])
     package_NAME(myapk.package)
     min_SDK(myapk.get_min_sdk_version())
     target_SDK(myapk.get_target_sdk_version())
     dependencyChecker(gradleResult["dependencies"]["compile"])
     debuggableChecker(gradleResult["android"]["buildTypes"][0]["release"][0])
-    manifest_AllowBackup(manifestXML.getElementsByTagName('application')[0])
+    versionCode(gradleResult["android"]["defaultConfig"][0])
     versionName(manifestXML.getElementsByTagName('manifest')[0].attributes['android:versionName'].value)
     manifest_InstallLocation(manifestXML.getElementsByTagName('application')[0])
     proguardChecker(gradleResult["android"]["buildTypes"][0]["release"][0])
     signingConfigs(gradleResult["android"]["signingConfigs"][0]["release"][0])
-    versionCode(gradleResult["android"]["defaultConfig"][0])
+    manifest_AllowBackup(manifestXML.getElementsByTagName('application')[0])
     exportedCheck(
         manifestXML.getElementsByTagName('manifest')[0].getElementsByTagName('application')[0].getElementsByTagName(
             'service')

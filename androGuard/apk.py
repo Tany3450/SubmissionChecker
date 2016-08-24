@@ -55,6 +55,7 @@ if sys.hexversion < 0x2070000:
 else:
     ZIPMODULE = 1
 
+
 ################################################### CHILKAT ZIP FORMAT #####################################################
 class ChilkatZip(object):
     def __init__(self, raw):
@@ -592,7 +593,6 @@ class APK(object):
         success = cert.LoadFromBinary(data)
         return success, cert
 
-
     def new_zip(self, filename, deleted_files=None, new_files={}):
         """
             Create a new zip file
@@ -736,11 +736,12 @@ class APK(object):
 
 def show_Certificate(cert):
     print "Issuer: C=%s, CN=%s, DN=%s, E=%s, L=%s, O=%s, OU=%s, S=%s" % (
-    cert.issuerC(), cert.issuerCN(), cert.issuerDN(), cert.issuerE(), cert.issuerL(), cert.issuerO(), cert.issuerOU(),
-    cert.issuerS())
+        cert.issuerC(), cert.issuerCN(), cert.issuerDN(), cert.issuerE(), cert.issuerL(), cert.issuerO(),
+        cert.issuerOU(),
+        cert.issuerS())
     print "Subject: C=%s, CN=%s, DN=%s, E=%s, L=%s, O=%s, OU=%s, S=%s" % (
-    cert.subjectC(), cert.subjectCN(), cert.subjectDN(), cert.subjectE(), cert.subjectL(), cert.subjectO(),
-    cert.subjectOU(), cert.subjectS())
+        cert.subjectC(), cert.subjectCN(), cert.subjectDN(), cert.subjectE(), cert.subjectL(), cert.subjectO(),
+        cert.subjectOU(), cert.subjectS())
 
 
 ######################################################## AXML FORMAT ########################################################
@@ -1007,8 +1008,8 @@ class AXMLParser(object):
                     self.buff.read(4)
                     self.buff.read(4)
                     (prefix, uri) = self.m_prefixuriL.pop()
-                    #del self.m_prefixuri[ prefix ]
-                    #del self.m_uriprefix[ uri ]
+                    # del self.m_prefixuri[ prefix ]
+                    # del self.m_uriprefix[ uri ]
 
                 continue
 
@@ -1091,7 +1092,7 @@ class AXMLParser(object):
         for i in self.m_uriprefix:
             if i not in self.visited_ns:
                 buff += "xmlns:%s=\"%s\"\n" % (
-                self.sb.getString(self.m_uriprefix[i]), self.sb.getString(self.m_prefixuri[self.m_uriprefix[i]]))
+                    self.sb.getString(self.m_uriprefix[i]), self.sb.getString(self.m_prefixuri[self.m_uriprefix[i]]))
                 self.visited_ns.append(i)
         return buff
 
@@ -1152,8 +1153,8 @@ class AXMLParser(object):
             return self.sb.getString(valueString)
         # WIP
         return ""
-        #int valueData=m_attributes[offset+ATTRIBUTE_IX_VALUE_DATA];
-        #return TypedValue.coerceToString(valueType,valueData);
+        # int valueData=m_attributes[offset+ATTRIBUTE_IX_VALUE_DATA];
+        # return TypedValue.coerceToString(valueType,valueData);
 
 
 TYPE_ATTRIBUTE = 2
@@ -1315,12 +1316,12 @@ class ARSCParser(object):
     def __init__(self, raw_buff):
         self.analyzed = False
         self.buff = bytecode.BuffHandle(raw_buff)
-        #print "SIZE", hex(self.buff.size())
+        # print "SIZE", hex(self.buff.size())
 
         self.header = ARSCHeader(self.buff)
         self.packageCount = unpack('<i', self.buff.read(4))[0]
 
-        #print hex(self.packageCount)
+        # print hex(self.packageCount)
 
         self.stringpool_main = StringBlock(self.buff)
 
@@ -1337,9 +1338,9 @@ class ARSCParser(object):
             mTableStrings = StringBlock(self.buff)
             mKeyStrings = StringBlock(self.buff)
 
-            #self.stringpool_main.show()
-            #self.mTableStrings.show()
-            #self.mKeyStrings.show()
+            # self.stringpool_main.show()
+            # self.mTableStrings.show()
+            # self.mKeyStrings.show()
 
             self.packages[package_name].append(current_package)
             self.packages[package_name].append(mTableStrings)
@@ -1410,7 +1411,7 @@ class ARSCParser(object):
                             if entry != -1:
                                 ate = self.packages[package_name][nb + 3 + nb_i]
 
-                                #print ate.is_public(), a_res_type.get_type(), ate.get_value(), hex(ate.mResId)
+                                # print ate.is_public(), a_res_type.get_type(), ate.get_value(), hex(ate.mResId)
                                 if ate.get_index() != -1:
                                     c_value["public"].append((a_res_type.get_type(), ate.get_value(), ate.mResId))
 
@@ -1437,7 +1438,7 @@ class ARSCParser(object):
                                 elif a_res_type.get_type() == "dimen":
                                     c_value["dimen"].append(self.get_resource_dimen(ate))
 
-                                #elif a_res_type.get_type() == "style":
+                                # elif a_res_type.get_type() == "style":
                                 #    c_value["style"].append(self.get_resource_style(ate))
 
                                 nb_i += 1
@@ -1468,12 +1469,12 @@ class ARSCParser(object):
     def get_resource_color(self, ate):
         entry_data = ate.key.get_data()
         return [ate.get_value(), "#%02x%02x%02x%02x" % (
-        ((entry_data >> 24) & 0xFF), ((entry_data >> 16) & 0xFF), ((entry_data >> 8) & 0xFF), (entry_data & 0xFF))]
+            ((entry_data >> 24) & 0xFF), ((entry_data >> 16) & 0xFF), ((entry_data >> 8) & 0xFF), (entry_data & 0xFF))]
 
     def get_resource_dimen(self, ate):
         try:
             return [ate.get_value(), "%s%s" % (
-            complexToFloat(ate.key.get_data()), DIMENSION_UNITS[ate.key.get_data() & COMPLEX_UNIT_MASK])]
+                complexToFloat(ate.key.get_data()), DIMENSION_UNITS[ate.key.get_data() & COMPLEX_UNIT_MASK])]
         except Exception, why:
             androconf.warning(why.__str__())
             return [ate.get_value(), ate.key.get_data()]
@@ -1682,7 +1683,7 @@ class ARSCHeader(object):
         self.header_size = unpack('<h', buff.read(2))[0]
         self.size = unpack('<i', buff.read(4))[0]
 
-        #print "ARSCHeader", hex(self.start), hex(self.type), hex(self.header_size), hex(self.size)
+        # print "ARSCHeader", hex(self.start), hex(self.type), hex(self.header_size), hex(self.size)
 
 
 class ARSCResTablePackage(object):
@@ -1696,7 +1697,7 @@ class ARSCResTablePackage(object):
         self.lastPublicKey = unpack('<i', buff.read(4))[0]
         self.mResId = self.id << 24
 
-        #print "ARSCResTablePackage", hex(self.start), hex(self.id), hex(self.mResId), repr(self.name.decode("utf-16", errors='replace')), hex(self.typeStrings), hex(self.lastPublicType), hex(self.keyStrings), hex(self.lastPublicKey)
+        # print "ARSCResTablePackage", hex(self.start), hex(self.id), hex(self.mResId), repr(self.name.decode("utf-16", errors='replace')), hex(self.typeStrings), hex(self.lastPublicType), hex(self.keyStrings), hex(self.lastPublicKey)
 
     def get_name(self):
         name = self.name.decode("utf-16", 'replace')
@@ -1713,7 +1714,7 @@ class ARSCResTypeSpec(object):
         self.res1 = unpack('<h', buff.read(2))[0]
         self.entryCount = unpack('<i', buff.read(4))[0]
 
-        #print "ARSCResTypeSpec", hex(self.start), hex(self.id), hex(self.res0), hex(self.res1), hex(self.entryCount), "table:" + self.parent.mTableStrings.getString(self.id - 1)
+        # print "ARSCResTypeSpec", hex(self.start), hex(self.id), hex(self.res0), hex(self.res1), hex(self.entryCount), "table:" + self.parent.mTableStrings.getString(self.id - 1)
 
         self.typespec_entries = []
         for i in range(0, self.entryCount):
@@ -1732,7 +1733,7 @@ class ARSCResType(object):
         self.mResId = (0xff000000 & self.parent.get_mResId()) | self.id << 16
         self.parent.set_mResId(self.mResId)
 
-        #print "ARSCResType", hex(self.start), hex(self.id), hex(self.res0), hex(self.res1), hex(self.entryCount), hex(self.entriesStart), hex(self.mResId), "table:" + self.parent.mTableStrings.getString(self.id - 1)
+        # print "ARSCResType", hex(self.start), hex(self.id), hex(self.res0), hex(self.res1), hex(self.entryCount), hex(self.entriesStart), hex(self.mResId), "table:" + self.parent.mTableStrings.getString(self.id - 1)
 
         self.config = ARSCResTableConfig(buff)
 
@@ -1765,7 +1766,7 @@ class ARSCResTableConfig(object):
             androconf.warning("too much bytes !")
             self.padding = buff.read(self.exceedingSize)
 
-            #print "ARSCResTableConfig", hex(self.start), hex(self.size), hex(self.imsi), hex(self.locale), repr(self.get_language()), repr(self.get_country()), hex(self.screenType), hex(self.input), hex(self.screenSize), hex(self.version), hex(self.screenConfig), hex(self.screenSizeDp)
+            # print "ARSCResTableConfig", hex(self.start), hex(self.size), hex(self.imsi), hex(self.locale), repr(self.get_language()), repr(self.get_country()), hex(self.screenType), hex(self.input), hex(self.screenSize), hex(self.version), hex(self.screenConfig), hex(self.screenSizeDp)
 
     def get_language(self):
         x = self.locale & 0x0000ffff
@@ -1785,7 +1786,7 @@ class ARSCResTableEntry(object):
         self.flags = unpack('<h', buff.read(2))[0]
         self.index = unpack('<i', buff.read(4))[0]
 
-        #print "ARSCResTableEntry", hex(self.start), hex(self.mResId), hex(self.size), hex(self.flags), hex(self.index), self.is_complex()#, hex(self.mResId)
+        # print "ARSCResTableEntry", hex(self.start), hex(self.mResId), hex(self.size), hex(self.flags), hex(self.index), self.is_complex()#, hex(self.mResId)
 
         if self.flags & 1:
             self.item = ARSCComplex(buff, parent)
@@ -1820,7 +1821,7 @@ class ARSCComplex(object):
         for i in range(0, self.count):
             self.items.append((unpack('<i', buff.read(4))[0], ARSCResStringPoolRef(buff, self.parent)))
 
-            #print "ARSCComplex", hex(self.start), self.id_parent, self.count, repr(self.parent.mKeyStrings.getString(self.id_parent))
+            # print "ARSCComplex", hex(self.start), self.id_parent, self.count, repr(self.parent.mKeyStrings.getString(self.id_parent))
 
 
 class ARSCResStringPoolRef(object):
@@ -1832,7 +1833,7 @@ class ARSCResStringPoolRef(object):
         self.data_type = unpack('<b', buff.read(1))[0]
         self.data = unpack('<i', buff.read(4))[0]
 
-        #print "ARSCResStringPoolRef", hex(self.start), hex(self.data_type), hex(self.data)#, "key:" + self.parent.mKeyStrings.getString(self.index), self.parent.stringpool_main.getString(self.data)
+        # print "ARSCResStringPoolRef", hex(self.start), hex(self.data_type), hex(self.data)#, "key:" + self.parent.mKeyStrings.getString(self.index), self.parent.stringpool_main.getString(self.data)
 
     def get_data_value(self):
         return self.parent.stringpool_main.getString(self.data)

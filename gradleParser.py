@@ -28,7 +28,7 @@ class GradleParser(object):
                 self.token_list.append(self.tokens_initial[i])
         self.token_list.reverse()
 
-    def parse(self,will_xml):
+    def parse(self, will_xml):
         """
         This method parses the given token_list object and returns either xml or nested dictionary
         @param will_xml: return the result as xml if given true
@@ -52,7 +52,6 @@ class GradleParser(object):
                 parent_node = self.dictionary_list[-1]
 
                 if not (new_dict in self.gradle_dict[parent_node].keys()):
-
                     self.gradle_dict[parent_node][new_dict] = defaultdict(list)
 
                 element_list = self.purifyElements(parse_line, ["{", "}"])
@@ -85,7 +84,7 @@ class GradleParser(object):
                     current_node[element_list[0]].append(element_list[0])
 
                 else:
-                    element_list = self.purifyElements(element_list,['[',']',':',','])
+                    element_list = self.purifyElements(element_list, ['[', ']', ':', ','])
                     current_node[element_list[0]].append(element_list[1:-1])
             # Dictionary closing
             elif self.checkElements(parse_line, ["}"]):
@@ -93,7 +92,6 @@ class GradleParser(object):
                 current_node = self.dictionary_list.pop()
 
                 if len(self.dictionary_list) > 1:
-
                     parent_node = self.dictionary_list[-1]
                     self.gradle_dict[parent_node][current_node].append(self.gradle_dict[current_node])
                     del self.gradle_dict[current_node]
@@ -101,8 +99,8 @@ class GradleParser(object):
         if "ext" in self.gradle_dict.keys():
             self.parse_versions()
 
-        if(will_xml):
-            return json.dumps(self.gradle_dict,sort_keys=True,indent=4)
+        if (will_xml):
+            return json.dumps(self.gradle_dict, sort_keys=True, indent=4)
         else:
             return self.gradle_dict
 
@@ -111,11 +109,11 @@ class GradleParser(object):
         extract versions from the ext block if exists
         @return:
         """
-        #first the normal libraries
+        # first the normal libraries
         base_annotation = "$rootProject.ext."
         ext_list = self.gradle_dict["ext"]
         library_node = self.gradle_dict["dependencies"]["compile"]
-        library_extract = [ x for x in self.gradle_dict["dependencies"]["compile"] if len(x) == 1]
+        library_extract = [x for x in self.gradle_dict["dependencies"]["compile"] if len(x) == 1]
         for lib in library_extract:
             version_placeholder = ''
             if base_annotation in lib[0]:
@@ -123,9 +121,9 @@ class GradleParser(object):
                 version_placeholder = lib[0][lib[0].index("$"):]
                 required = version_placeholder.strip(base_annotation)
                 required_version = ext_list[required][0][0]
-                #TODO add check for versions
+                # TODO add check for versions
                 library_node.remove(lib)
-                library_node.append([temp_lib+required_version])
+                library_node.append([temp_lib + required_version])
 
     def checkElements(self, elements, target_list):
         """
